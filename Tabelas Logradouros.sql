@@ -40,12 +40,12 @@ CREATE INDEX IdxPaises ON Logradouros.Paises(NomePais)
 TABLESPACE tblIdxRegioes   STORAGE (INITIAL 20K   NEXT 20k  PCTINCREASE 75);
 
 CREATE UNIQUE INDEX UKPaises ON Logradouros.Paises
-( NomePopular,
-  NomePais )
+( NomePopular, NomePais )
 TABLESPACE tblIdxRegioes STORAGE (INITIAL 20K NEXT 20k PCTINCREASE 75);
 ---
 Update Logradouros.UnidadesFederativas
-Set ID_UnidadeFederativa = Logradouros.seqUnidadesFederativas.NextVal;
+Set ID_UnidadeFederativa = Logradouros.seqUnidadesFederativas.NextVal
+Where ID_UnidadeFederativa Is Null;
 
 Alter table Logradouros.UnidadesFederativas Add constraint PK_UnidadesFederativas Primary Key (ID_UnidadeFederativa) 
              USING INDEX TABLESPACE tblIdxRegioes;
@@ -54,18 +54,19 @@ CREATE INDEX IdxUnidadesFederativas ON Logradouros.UnidadesFederativas(NomeUnida
 TABLESPACE tblIdxRegioes   STORAGE (INITIAL 20K   NEXT 20k  PCTINCREASE 75);
 
 CREATE UNIQUE INDEX UK_UnidadesFederativas ON Logradouros.UnidadesFederativas
-( NomeUnidadeFederativa,
-  ID_UnidadeFederativa )
+( ID_Pais, ID_UnidadeFederativa )
 TABLESPACE tblIdxRegioes STORAGE (INITIAL 20K NEXT 20k PCTINCREASE 75);
 
 ---
 Update Logradouros.Municipios
-Set ID_Municipio = Logradouros.seqMunicipios.NextVal;
+Set ID_Municipio = Logradouros.seqMunicipios.NextVal
+Where ID_Municipio Is Null;
 
 Update Logradouros.Municipios 
 Set ID_UnidadeFederativa = (Select ID_UnidadeFederativa
                             From UnidadesFederativas UF
-							Where uf.SiglaUnidadeFederativa = Municipios.SiglaUnidadeFederativa);
+							Where uf.SiglaUnidadeFederativa = Municipios.SiglaUnidadeFederativa
+							 And  uf.ID_Pais = 26);
 
 Alter table Logradouros.Municipios Add constraint PK_Municipioss Primary Key (ID_Municipio) 
              USING INDEX TABLESPACE tblIdxRegioes;
@@ -73,11 +74,7 @@ Alter table Logradouros.Municipios Add constraint PK_Municipioss Primary Key (ID
 CREATE INDEX IdxMunicipios ON Logradouros.Municipios (NomeMunicipio)
 TABLESPACE tblIdxRegioes   STORAGE (INITIAL 20K   NEXT 20k  PCTINCREASE 75);
 
-CREATE UNIQUE INDEX UK_UnidadesFederativas ON Logradouros.UnidadesFederativas
-( NomeMunicipio,
-  ID_UnidadeFederativa )
+CREATE UNIQUE INDEX UK_Municipios ON Logradouros.Municipios
+( ID_UnidadeFederativa, ID_Municipio)
 TABLESPACE tblIdxRegioes STORAGE (INITIAL 20K NEXT 20k PCTINCREASE 75);
 ---
-
-  GRANT SELECT ON "LOGRADOUROS"."ESTADOS" TO "MARCIO";
-
